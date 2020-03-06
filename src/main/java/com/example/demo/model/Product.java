@@ -17,34 +17,28 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
-
     @NotBlank
     @Column(name = "productName")
     private String productName;
-
     @ManyToOne()
     @JoinColumn(name = "category_id")
     private Category category;
-
     @Column(name = "createdate")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date createDate;
-
     @Column(name = "modifieddate")
     private Date modifiedDate;
-
-
-    private ArrayList<String> image;
+    private String image;
     private boolean status;
 
     public Product() {
     }
 
-    public Product(String productName, Category category, Date createDate, Date modifiedDate, boolean status) {
+    public Product(String productName, Category category, Date createDate, Date modifiedDate, String image, boolean status) {
         this.productName = productName;
         this.category = category;
         this.createDate = createDate;
+        this.image = image;
         this.status = status;
     }
 
@@ -105,11 +99,11 @@ public class Product {
         this.status = status;
     }
 
-    public ArrayList<String> getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(ArrayList<String> image) {
+    public void setImage(String image) {
         this.image = image;
     }
 }

@@ -1,10 +1,8 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.DetailProduct;
 import com.example.demo.model.Details;
 import com.example.demo.model.Product;
 import com.example.demo.repository.DetailsRepositoryImpl;
-import com.example.demo.service.DetailSevice;
 import com.example.demo.service.FileService;
 import com.example.demo.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -28,12 +25,6 @@ import java.util.*;
 public class ProductController {
     @Autowired
     private ProductService productService;
-//    @Autowired
-//    private VariantDetailService optionService;
-//    @Autowired
-//    private VarientService varientService;
-    @Autowired
-    private DetailSevice detailSevice;
     @Autowired
     private FileService fileService;
 
@@ -43,12 +34,52 @@ public class ProductController {
 
     @GetMapping()
     public ResponseEntity<List<Details>> showAllProduct(){
-        List<Details> productList = detailsRepository.getAllDetails();
-        //List<Product> productList = productService.findAllProductByStatus();
-        if (productList == null){
+        List<Object[]> objects = detailsRepository.getAllDetails();
+        if (objects == null){
             return new ResponseEntity<List<Details>>(HttpStatus.BAD_REQUEST);
         }
-            return  new ResponseEntity<List<Details>>(productList, HttpStatus.OK);
+            List<Details> detailsList = new ArrayList<>();
+            for (Object[] o: objects){
+                Details details = new Details();
+                detailsList.add(details);
+                details.setId((o[0].toString()));
+                details.setProductName((String) o[1]);
+                details.setCategoryName((String) o[2]);
+                details.setVariantName((String) o[3]);
+                details.setVariantDetailName((String) o[4]);
+                if (o[5] != null){
+                    details.setImage( o[5].toString());
+                }
+                details.setCreateDate((Date) o[6]);
+                if (o[7] != null){
+                    details.setModifiedDate((Date) o[7]);
+                }
+            }
+            return  new ResponseEntity<List<Details>>(detailsList, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<List<Details>> getProductById(@PathVariable("id") Long id){
+        List<Object[]> objects = detailsRepository.getDetailsById(id);
+        if (objects == null){
+            return new ResponseEntity<List<Details>>(HttpStatus.BAD_REQUEST);
+        }
+        List<Details> detailsList = new ArrayList<>();
+        for (Object[] o: objects){
+            Details details = new Details();
+            detailsList.add(details);
+            details.setId((o[0].toString()));
+            details.setProductName((String) o[1]);
+            details.setCategoryName((String) o[2]);
+            details.setVariantName((String) o[3]);
+            details.setVariantDetailName((String) o[4]);
+            if (o[5] != null){
+                details.setImage( o[5].toString());
+            }
+            details.setCreateDate((Date) o[6]);
+            details.setModifiedDate((Date) o[7]);
+        }
+        return  new ResponseEntity<List<Details>>(detailsList, HttpStatus.OK);
     }
     @PostMapping()
     public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product, UriComponentsBuilder uriComponentsBuilder){
@@ -64,28 +95,28 @@ public class ProductController {
 //        //option.setName(product.getNameOption());
 //        //option.setVariant(product.getVariant());
 //        optionService.save(option);
+        List<Product> productList = productService.findAllProductByStatus();
+        if (productList!=null){
+            for (Product p: productList){
+                if (p.getProductName().equalsIgnoreCase(product.getProductName())){
+                    return new ResponseEntity("Product exist!!!",HttpStatus.FOUND);
+                }
+            }
+        }
+        Product productNew = new Product();
+        productNew.setProductName(product.getProductName());
+        productNew.setCategory(product.getCategory());
+        productNew.setStatus(true);
+        Calendar cal = Calendar.getInstance();
+        Date date = cal.getTime();
 
-            Product productNew = new Product();
-            productNew.setProductName(product.getProductName());
-            productNew.setCategory(product.getCategory());
-            productNew.setStatus(true);
-            //productNew.setVariant(product.getVariant());
-            //productNew.setNameOption(product.getNameOption());
-            Calendar cal = Calendar.getInstance();
-            Date date = cal.getTime();
-
-            productNew.setCreateDate(date);
-            productService.saveProduct(productNew);
-
-            //luu vao bang chi tiet san pham
-        DetailProduct detailProduct = new DetailProduct();
-        detailProduct.setProduct(productNew);
-        detailSevice.save(detailProduct);
+        productNew.setCreateDate(date);
+        productService.saveProduct(productNew);
 
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setLocation(uriComponentsBuilder.path("/product/{id}").buildAndExpand(product.getId()).toUri());
-            return new ResponseEntity<Product>(HttpStatus.CREATED);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponentsBuilder.path("/product/{id}").buildAndExpand(product.getId()).toUri());
+        return new ResponseEntity<Product>(HttpStatus.CREATED);
 
     }
     @PutMapping("/{id}")
@@ -125,50 +156,27 @@ public class ProductController {
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
-    @PostMapping(value = "/mutilpartFile/{id}")
-    public ResponseEntity<Product> updateUser(@PathVariable("id") Long id, @RequestPart("image") MultipartFile[] file) throws IOException {
-        // Khoi tao mang ten
-        ArrayList<String> fileName = new ArrayList<>();
-        //khoi tao mang luu file
-        ArrayList<File> saveFiles = new ArrayList<>();
-
+    @PostMapping(value = "/{id}")
+    public ResponseEntity<Product> saveImage(@PathVariable("id") Long id, @RequestPart("image") MultipartFile file) throws IOException {
         Optional<Product> productOptional = productService.findById(id);
         Product product = productOptional.get();
-        if (product != null){
-            if (product.getImage() != null){
+        String fileName = file.getOriginalFilename();
+        if (product !=null){
+            if (product.getImage() !=null){
                 fileService.deleteImage(product);
-            }else
-                //lưu tên ảnh vao db
-                for (MultipartFile multipartFile: file){
-                    fileName.add(multipartFile.getOriginalFilename());
-                }
-            // lưu file ảnh lên serve
-            for (MultipartFile multipartFile: file){
-                fileService.saveImage(multipartFile);
+                product.setImage(fileName);
+                fileService.saveImage(file);
+                productService.saveProduct(product);
+                return new ResponseEntity<Product>(product,HttpStatus.OK);
             }
-            product.setImage(fileName);
-            productService.saveProduct(product);
-            return new ResponseEntity<Product>(product,HttpStatus.OK);
-        }else {
-            for (MultipartFile multipartFile: file){
-                fileName.add(multipartFile.getOriginalFilename());
+            else {
+                product.setImage(fileName);
+                fileService.saveImage(file);
+                productService.saveProduct(product);
+                return new ResponseEntity<Product>(product,HttpStatus.OK);
             }
-            for (MultipartFile multipartFile: file){
-                fileService.saveImage(multipartFile);
-            }
-            product.setImage(fileName);
-            productService.saveProduct(product);
-            return new ResponseEntity<Product>(product,HttpStatus.OK);
-        }
-    }
-    @GetMapping("/{id}")
-    public ResponseEntity<Product> showAllProduct(@PathVariable("id")Long id){
-
-        Product productFind = productService.findById(id).get();
-        if (productFind == null){
-            return new ResponseEntity("Not found product",HttpStatus.BAD_REQUEST);
-        }
-        return  new ResponseEntity<Product>( productFind, HttpStatus.OK);
+        }else
+            return new ResponseEntity<Product>(HttpStatus.NOT_FOUND);
     }
 
 }

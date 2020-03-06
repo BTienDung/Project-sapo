@@ -23,7 +23,6 @@ public class FileServiceImpl implements FileService {
     @Value(value = "E:/SpringBoot/DemoProjectSapo/src/main/webapp/images/")
     private String imageProduct;
     @Override
-
     //luu file len server
     public void saveImage(MultipartFile multipartFile) {
         File uploadedFile = new File(imageProduct, multipartFile.getOriginalFilename());
@@ -40,23 +39,13 @@ public class FileServiceImpl implements FileService {
 
     //ham goi file de xoa
     @Override
-    public File callFileImage(Optional<Product> product) throws FileNotFoundException {
-        String pathFile = imageProduct + product.get().getImage();
-        File fileName = getFile(pathFile);
-        return fileName;
-    }
-
-    @Override
     public void deleteImage(Product product) throws IOException {
-        ArrayList<String> productImage = product.getImage();
-        for (String pathFile: productImage){
-            String imgFile = imageProduct+ "/" + product.getImage();
-            try {
+        String pathFile = product.getImage();
+        try {
                 File avatar = FileUtils.getFile(pathFile);
                 FileUtils.forceDelete(avatar);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
     }
 }

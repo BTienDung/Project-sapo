@@ -20,29 +20,25 @@ public class VariantController {
     private ProductService productService;
     @Autowired
     private VariantDetailService variantDetailService;
-    @Autowired
-    private DetailSevice detailSevice;
 
 
-
-
-
+    @GetMapping
+    public ResponseEntity<Iterable<Variant>> getAllVariant(){
+        Iterable<Variant> variantList = variantService.findAllVariant();
+        if(variantList == null){
+            return new ResponseEntity<Iterable<Variant>>(HttpStatus.FOUND);
+        }
+        return new ResponseEntity<Iterable<Variant>>(variantList, HttpStatus.OK);
+    }
 
     @PostMapping
-    public ResponseEntity<Variant> addCategory(@RequestBody Variant variant, UriComponentsBuilder uriComponentsBuilder){
+    public ResponseEntity<Variant> addVariant(@RequestBody Variant variant, UriComponentsBuilder uriComponentsBuilder){
         if(variant.getVariantName() != null){
             Variant variantNew = new Variant();
             Product product = productService.findById(variant.getProduct().getId()).get();
             variantNew.setProduct(product);
             variantNew.setVariantName(variant.getVariantName());
             variantService.save(variantNew);
-
-            //luu id variant vao detal
-            DetailProduct detailProduct = detailSevice.findByProductId(variant.getProduct().getId()).get();
-            detailProduct.setVariant(variantNew);
-            detailSevice.save(detailProduct);
-
-
 
             HttpHeaders headers = new HttpHeaders();
             headers.setLocation(uriComponentsBuilder.path("/{id}").buildAndExpand(variant.getId()).toUri());

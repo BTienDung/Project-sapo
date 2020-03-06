@@ -19,7 +19,7 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping("/api/category")
-    public ResponseEntity<List<Category>> findAllCategoryByStatus(){
+    public ResponseEntity<List<Category>> findAllCategory(){
         List<Category> listCategory = categoryService.findAllCategory();
         if (listCategory.isEmpty()){
             return new ResponseEntity<List<Category>>(HttpStatus.BAD_REQUEST);
@@ -29,14 +29,22 @@ public class CategoryController {
     @PostMapping("/api/category")
     public ResponseEntity<Category> addCategory(@RequestBody Category category, UriComponentsBuilder uriComponentsBuilder){
         List<Category> listCategory = categoryService.findAllCategory();
-        if(category.getCategoryName() != null){
-            categoryService.saveCategory(category);
-            HttpHeaders headers = new HttpHeaders();
-            headers.setLocation(uriComponentsBuilder.path("/category/{id}").buildAndExpand(category.getId()).toUri());
-            return new ResponseEntity<Category>(category, HttpStatus.CREATED);
-        }else {
-            return new ResponseEntity<Category>(HttpStatus.FOUND);
+        if (listCategory.size() < 3){
+            if(category.getCategoryName() != null){
+                for (Category c: listCategory){
+                    if (c.getCategoryName().equalsIgnoreCase(category.getCategoryName())){
+                        return new ResponseEntity("Category exist!!!", HttpStatus.FOUND);
+                    }
+                }
+                categoryService.saveCategory(category);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setLocation(uriComponentsBuilder.path("/category/{id}").buildAndExpand(category.getId()).toUri());
+                return new ResponseEntity<Category>(category, HttpStatus.CREATED);
+            }else {
+                return new ResponseEntity<Category>(HttpStatus.FOUND);
+            }
         }
+        return new ResponseEntity("Category can't more than 3.",HttpStatus.FOUND);
 
     }
     @PutMapping("/api/category/{id}")

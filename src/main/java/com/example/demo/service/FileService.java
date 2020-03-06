@@ -10,6 +10,6 @@ import java.util.Optional;
 
 public interface FileService {
     void saveImage(MultipartFile multipartFile);
-    File callFileImage(Optional<Product> product) throws FileNotFoundException;
+    //File callFileImage(Optional<Product> product) throws FileNotFoundException;
     void deleteImage(Product product) throws IOException;
 }

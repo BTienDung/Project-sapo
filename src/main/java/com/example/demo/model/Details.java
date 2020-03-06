@@ -3,6 +3,7 @@ package com.example.demo.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 
 @Entity
@@ -11,35 +12,50 @@ import java.util.Date;
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(name = "getAllProduct",
                 procedureName = "getAllProduct",
+
+                resultClasses = Details.class),
+        @NamedStoredProcedureQuery(name = "getProductById",
+                procedureName = "getProductById",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "id", type = Long.class),
+
+                },
                 resultClasses = Details.class)
+
+
+
 })
 
 public class Details {
     @Id
-    private Long id;
+    private String id;
     private String productName;
     private String categoryName;
     private String  variantName;
     private String variantDetailName;
+    private Date createDate;
     private Date modifiedDate;
+    private String image;
 
     public Details() {
     }
 
-    public Details(Long id, String productName, String categoryName, String variantName, String variantDetailName, Date modifiedDate) {
+    public Details(String id, String productName, String categoryName, String variantName, String variantDetailName, Date createDate, Date modifiedDate, String image) {
         this.id = id;
         this.productName = productName;
         this.categoryName = categoryName;
         this.variantName = variantName;
         this.variantDetailName = variantDetailName;
+        this.createDate = createDate;
         this.modifiedDate = modifiedDate;
+        this.image = image;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -81,5 +97,21 @@ public class Details {
 
     public void setModifiedDate(Date modifiedDate) {
         this.modifiedDate = modifiedDate;
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }
