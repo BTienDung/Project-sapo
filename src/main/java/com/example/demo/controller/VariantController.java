@@ -28,7 +28,7 @@ public class VariantController {
     public ResponseEntity<Iterable<Variant>> getAllVariant(){
         Iterable<Variant> variantList = variantService.findAllVariant();
         if(variantList == null){
-            return new ResponseEntity<Iterable<Variant>>(HttpStatus.FOUND);
+            return new ResponseEntity<Iterable<Variant>>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<Iterable<Variant>>(variantList, HttpStatus.OK);
     }
@@ -65,7 +65,7 @@ public class VariantController {
             headers.setLocation(uriComponentsBuilder.path("/{id}").buildAndExpand(variant.getId()).toUri());
             return new ResponseEntity<Variant>(variant, HttpStatus.CREATED);
         }else {
-            return new ResponseEntity<Variant>(HttpStatus.FOUND);
+            return new ResponseEntity<Variant>(HttpStatus.NOT_FOUND);
         }
 
     }
@@ -96,7 +96,7 @@ public class VariantController {
         }
         if (variantNew == null){
 
-            return new ResponseEntity<Variant>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Variant>(HttpStatus.NOT_FOUND);
         }
         for (int i=0; i< listVariantOld.size(); i++){
             if (listVariantOld.get(i).getVariantName().equalsIgnoreCase(variant.getVariantName())){

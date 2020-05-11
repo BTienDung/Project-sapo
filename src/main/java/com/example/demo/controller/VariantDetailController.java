@@ -33,7 +33,7 @@ public class VariantDetailController {
                     try {
                         VariantDetail variantDetailDb = variantDetailService.findByVariantDetailNameAndVariantId(variantDetail.getVariantDetailName(), variantDetail.getVariant().getId()).get();
                         if (allVariantDetailFind.get(i).getVariantDetailName().equals(variantDetailDb.getVariantDetailName())) {
-                            return new ResponseEntity("Create failed!!! Product is exist.", HttpStatus.FOUND);
+                            return new ResponseEntity("Create failed!!! Product is exist.", HttpStatus.BAD_REQUEST);
                         }
                     } catch (Exception e) {
 
@@ -44,10 +44,10 @@ public class VariantDetailController {
                 countOption++;
                 return new ResponseEntity<VariantDetail>(variantDetail, HttpStatus.CREATED);
             } else {
-                return new ResponseEntity("Create failed!!! VariantDetail must be less than 3.", HttpStatus.FOUND);
+                return new ResponseEntity("Create failed!!! VariantDetail must be less than 3.", HttpStatus.BAD_REQUEST);
             }
         } else {
-            return new ResponseEntity("Create failed!!! VariantDetail name not null.", HttpStatus.FOUND);
+            return new ResponseEntity("Create failed!!! VariantDetail name not null.", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -66,7 +66,7 @@ public class VariantDetailController {
                     try {
                         VariantDetail variantDetailDb = variantDetailService.findByVariantDetailNameAndVariantId(variantDetail.getVariantDetailName(), variantDetail.getVariant().getId()).get();
                         if (allVariantDetailFind.get(i).getVariantDetailName().equals(variantDetailDb.getVariantDetailName())) {
-                            return new ResponseEntity("Update failed!!! Product is exist.", HttpStatus.FOUND);
+                            return new ResponseEntity("Update failed!!! Product is exist.", HttpStatus.BAD_REQUEST);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -76,17 +76,17 @@ public class VariantDetailController {
                 variantDetailService.save(variantDetailOld);
                 return new ResponseEntity<VariantDetail>(variantDetail, HttpStatus.OK);
             } else {
-                return new ResponseEntity("Update failed!!! VariantDetail name not null.", HttpStatus.FOUND);
+                return new ResponseEntity("Update failed!!! VariantDetail name not null.", HttpStatus.BAD_REQUEST);
             }
         }
-        return new ResponseEntity("Variant detail not found.", HttpStatus.FOUND);
+        return new ResponseEntity("Variant detail not found.", HttpStatus.NOT_FOUND);
 
     }
     @GetMapping
     public ResponseEntity<Iterable<VariantDetail>> findAllVariantDetail(){
         Iterable<VariantDetail> variantDetails = variantDetailService.findAllOption();
         if (variantDetails == null){
-            return new ResponseEntity("Variant detail null", HttpStatus.NO_CONTENT);
+            return new ResponseEntity("Variant detail null", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<Iterable<VariantDetail>>(variantDetails, HttpStatus.OK);
     }
@@ -95,7 +95,7 @@ public class VariantDetailController {
     public ResponseEntity<VariantDetail> findVariantDetailById(@PathVariable("id") Long id){
         VariantDetail variantDetails = variantDetailService.findByVariantDetailId(id).get();
         if (variantDetails == null){
-            return new ResponseEntity("Variant detail null", HttpStatus.NO_CONTENT);
+            return new ResponseEntity("Variant detail null", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<VariantDetail>(variantDetails, HttpStatus.OK);
     }

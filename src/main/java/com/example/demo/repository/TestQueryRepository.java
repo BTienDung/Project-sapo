@@ -12,5 +12,4 @@ public interface TestQueryRepository  extends PagingAndSortingRepository<Product
     // @Query("select v.id, v.name, p.nameproduct from product p, variant v where p.id = v.product_id")
     List<Product> findAll();
 
-
 }

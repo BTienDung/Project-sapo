@@ -22,7 +22,7 @@ public class CategoryController {
     public ResponseEntity<List<Category>> findAllCategory(){
         List<Category> listCategory = categoryService.findAllCategory();
         if (listCategory.isEmpty()){
-            return new ResponseEntity<List<Category>>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<List<Category>>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<List<Category>>(listCategory,HttpStatus.OK);
     }
@@ -33,7 +33,7 @@ public class CategoryController {
             if(category.getCategoryName() != null){
                 for (Category c: listCategory){
                     if (c.getCategoryName().equalsIgnoreCase(category.getCategoryName())){
-                        return new ResponseEntity("Category exist!!!", HttpStatus.FOUND);
+                        return new ResponseEntity("Category exist!!!", HttpStatus.BAD_REQUEST);
                     }
                 }
                 categoryService.saveCategory(category);
@@ -41,10 +41,10 @@ public class CategoryController {
                 headers.setLocation(uriComponentsBuilder.path("/category/{id}").buildAndExpand(category.getId()).toUri());
                 return new ResponseEntity<Category>(category, HttpStatus.CREATED);
             }else {
-                return new ResponseEntity<Category>(HttpStatus.FOUND);
+                return new ResponseEntity<Category>(HttpStatus.BAD_REQUEST);
             }
         }
-        return new ResponseEntity("Category can't more than 3.",HttpStatus.FOUND);
+        return new ResponseEntity("Category can't more than 3.",HttpStatus.BAD_REQUEST);
 
     }
     @PutMapping("/api/category/{id}")

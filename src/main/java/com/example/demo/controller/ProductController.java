@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.sql.DataSource;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
@@ -32,11 +33,12 @@ public class ProductController {
     @Autowired
     private DetailsRepositoryImpl detailsRepository;
 
+
     @GetMapping()
     public ResponseEntity<List<Details>> showAllProduct(){
         List<Object[]> objects = detailsRepository.getAllDetails();
         if (objects == null){
-            return new ResponseEntity<List<Details>>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<List<Details>>(HttpStatus.NOT_FOUND);
         }
             List<Details> detailsList = new ArrayList<>();
             for (Object[] o: objects){
@@ -62,7 +64,7 @@ public class ProductController {
     public ResponseEntity<List<Product>> showAllProductOriginal(){
         List<Product> products = productService.findAllProductByStatus();
         if (products == null){
-            return new ResponseEntity<List<Product>>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<List<Product>>(HttpStatus.NOT_FOUND);
         }
 
         return  new ResponseEntity<List<Product>>(products, HttpStatus.OK);
@@ -79,8 +81,8 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<List<Details>> getProductById(@PathVariable("id") Long id){
         List<Object[]> objects = detailsRepository.getDetailsById(id);
-        if (objects == null){
-            return new ResponseEntity<List<Details>>(HttpStatus.BAD_REQUEST);
+        if (objects.size() == 0){
+            return new ResponseEntity<List<Details>>(HttpStatus.NOT_FOUND);
         }
         List<Details> detailsList = new ArrayList<>();
         for (Object[] o: objects){
@@ -123,9 +125,12 @@ public class ProductController {
         if (productList!=null){
             for (Product p: productList){
                 if (p.getProductName().equalsIgnoreCase(product.getProductName())){
-                    return new ResponseEntity("Product exist!!!",HttpStatus.FOUND);
+                    return new ResponseEntity("Product exist!!!",HttpStatus.BAD_REQUEST);
                 }
             }
+        }
+        if (product.getCategory() == null){
+            return new ResponseEntity("Category not null!!!",HttpStatus.BAD_REQUEST);
         }
         Product productNew = new Product();
         productNew.setProductName(product.getProductName());
@@ -177,14 +182,15 @@ public class ProductController {
         Product productNew = productOptional.get();
 
         if(productNew == null){
-            return new ResponseEntity<Product>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Product>(HttpStatus.NOT_FOUND);
         }
 
         for(Product p: productList){
             if (((p.getProductName().equals( product.getProductName()))  && (p.getCategory().getId() == product.getCategory().getId())) ){
-                return new ResponseEntity<Product>(HttpStatus.FOUND);
+                return new ResponseEntity<Product>(HttpStatus.BAD_REQUEST);
             }
         }
+
         if (product.getCategory() == null){
             productNew.setProductName(product.getProductName());
             Calendar cal = Calendar.getInstance();
@@ -213,7 +219,7 @@ public class ProductController {
         Optional<Product> productOptional = productService.findById(id);
         Product productNew = productOptional.get();
         if(productNew == null){
-            return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
         productNew.setStatus(false);
         productService.saveProduct(productNew);
