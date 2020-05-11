@@ -49,5 +49,10 @@ public class VariantDetailServiceImpl implements VariantDetailService {
         return variantDetailRepository.findAll();
     }
 
+    @Override
+    public Optional<VariantDetail> findByVariantDetailId(Long id) {
+        return variantDetailRepository.findById(id);
+    }
+
 
 }

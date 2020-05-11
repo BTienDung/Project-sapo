@@ -11,7 +11,7 @@ public interface VariantDetailService {
     Long countAllByVariantId(Long id);
     List<VariantDetail> findAllByVariantId(Long id);
     Iterable<VariantDetail> findAllOption();
-    //Optional<Variant> findByVariantId(Long id);
+    Optional<VariantDetail> findByVariantDetailId(Long id);
     Optional<VariantDetail> findByVariantDetailNameAndVariantId(String name, Long id);
 
 }

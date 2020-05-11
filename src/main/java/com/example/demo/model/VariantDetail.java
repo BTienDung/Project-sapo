@@ -12,7 +12,6 @@ public class VariantDetail {
     @NotBlank
     @Column(name = "variantdetailname")
     private String variantDetailName;
-
     @ManyToOne
     @JoinColumn(name = "variant_id")
     private Variant variant;

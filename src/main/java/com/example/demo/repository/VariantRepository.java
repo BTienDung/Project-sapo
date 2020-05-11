@@ -12,4 +12,5 @@ import java.util.Optional;
 @Repository
 public interface VariantRepository extends PagingAndSortingRepository<Variant, Long> {
     Optional<Product> findByProductId(Long id);
+    List<Variant> findAllByProductId(Long id);
 }

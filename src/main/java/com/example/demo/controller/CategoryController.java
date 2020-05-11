@@ -70,4 +70,15 @@ public class CategoryController {
         return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
 
     }
+    @GetMapping("/api/category/{id}")
+    public ResponseEntity<Category> findCategory(@PathVariable("id")Long id){
+
+        Optional<Category> category = categoryService.findById(id);
+        Category categoryFind = category.get();
+        if(categoryFind !=null ){
+            return new ResponseEntity<Category>(categoryFind,HttpStatus.OK);
+        }
+        return new ResponseEntity<Category>(HttpStatus.NOT_FOUND);
+
+    }
 }

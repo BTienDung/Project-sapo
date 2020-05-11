@@ -57,7 +57,25 @@ public class ProductController {
             }
             return  new ResponseEntity<List<Details>>(detailsList, HttpStatus.OK);
     }
+    //tim product nguyen thuy
+    @GetMapping("/original")
+    public ResponseEntity<List<Product>> showAllProductOriginal(){
+        List<Product> products = productService.findAllProductByStatus();
+        if (products == null){
+            return new ResponseEntity<List<Product>>(HttpStatus.BAD_REQUEST);
+        }
 
+        return  new ResponseEntity<List<Product>>(products, HttpStatus.OK);
+    }
+
+//    @GetMapping("/{id}")
+//    public ResponseEntity<Product> getOneProductById(@PathVariable("id") Long id) {
+//        Product productFind = productService.findById(id).get();
+//        if (productFind !=null){
+//            return new ResponseEntity<Product>(productFind, HttpStatus.OK);
+//        }
+//        return new ResponseEntity<Product>(HttpStatus.NOT_FOUND);
+//    }
     @GetMapping("/{id}")
     public ResponseEntity<List<Details>> getProductById(@PathVariable("id") Long id){
         List<Object[]> objects = detailsRepository.getDetailsById(id);
@@ -81,6 +99,12 @@ public class ProductController {
         }
         return  new ResponseEntity<List<Details>>(detailsList, HttpStatus.OK);
     }
+
+//    @PostMapping("/addProduct")
+//    public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product){
+//
+//    }
+
     @PostMapping()
     public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product, UriComponentsBuilder uriComponentsBuilder){
 //        List<Product> productList = productService.findAllProductByStatus();
@@ -113,27 +137,67 @@ public class ProductController {
         productNew.setCreateDate(date);
         productService.saveProduct(productNew);
 
-
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponentsBuilder.path("/product/{id}").buildAndExpand(product.getId()).toUri());
-        return new ResponseEntity<Product>(HttpStatus.CREATED);
+        headers.setLocation(uriComponentsBuilder.path("/{id}").buildAndExpand(product.getId()).toUri());
+        return new ResponseEntity<Product>(productNew,HttpStatus.CREATED);
 
     }
+//    @PutMapping("/{id}")
+//    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody Product product, UriComponentsBuilder uriComponentsBuilder){
+//        List<Product> productList = productService.findAllProductByStatus();
+//        Optional<Product> productOptional = productService.findById(id);
+//        Product productNew = productOptional.get();
+//        if(productNew == null){
+//            return new ResponseEntity<Product>(HttpStatus.BAD_REQUEST);
+//        }
+//
+//        for(Product p: productList){
+//            if (((p.getProductName().equals( product.getProductName()))  && (p.getCategory().getId() == product.getCategory().getId())) ){
+//                return new ResponseEntity<Product>(HttpStatus.FOUND);
+//            }
+//        }
+//        productNew.setProductName(product.getProductName());
+//        productNew.setCategory(product.getCategory());
+//        Calendar cal = Calendar.getInstance();
+//        Date date = cal.getTime();
+//        productNew.setModifiedDate(date);
+//        productService.saveProduct(productNew);
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setLocation(uriComponentsBuilder.path("/{id}").buildAndExpand(product.getId()).toUri());
+//        return new ResponseEntity<Product>(productNew,HttpStatus.OK);
+//    }
+
+    //them yeu cau neu ma category mà trống thì lưu category cũ
+
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateProduct(@PathVariable("id") Long id, @RequestBody Product product, UriComponentsBuilder uriComponentsBuilder){
+    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody Product product, UriComponentsBuilder uriComponentsBuilder){
         List<Product> productList = productService.findAllProductByStatus();
         Optional<Product> productOptional = productService.findById(id);
         Product productNew = productOptional.get();
+
         if(productNew == null){
-            return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Product>(HttpStatus.BAD_REQUEST);
         }
 
         for(Product p: productList){
             if (((p.getProductName().equals( product.getProductName()))  && (p.getCategory().getId() == product.getCategory().getId())) ){
-                return new ResponseEntity<Void>(HttpStatus.FOUND);
+                return new ResponseEntity<Product>(HttpStatus.FOUND);
             }
         }
+        if (product.getCategory() == null){
+            productNew.setProductName(product.getProductName());
+            Calendar cal = Calendar.getInstance();
+            Date date = cal.getTime();
+            productNew.setModifiedDate(date);
+            productService.saveProduct(productNew);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(uriComponentsBuilder.path("/{id}").buildAndExpand(product.getId()).toUri());
+            return new ResponseEntity<Product>(productNew,HttpStatus.OK);
+        }
         productNew.setProductName(product.getProductName());
+        productNew.setCategory(product.getCategory());
         Calendar cal = Calendar.getInstance();
         Date date = cal.getTime();
         productNew.setModifiedDate(date);
@@ -141,7 +205,7 @@ public class ProductController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponentsBuilder.path("/{id}").buildAndExpand(product.getId()).toUri());
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<Product>(productNew,HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -166,12 +230,22 @@ public class ProductController {
                 fileService.deleteImage(product);
                 product.setImage(fileName);
                 fileService.saveImage(file);
+
+                Calendar cal = Calendar.getInstance();
+                Date date = cal.getTime();
+                product.setModifiedDate(date);
+
                 productService.saveProduct(product);
                 return new ResponseEntity<Product>(product,HttpStatus.OK);
             }
             else {
                 product.setImage(fileName);
                 fileService.saveImage(file);
+
+                Calendar cal = Calendar.getInstance();
+                Date date = cal.getTime();
+                product.setModifiedDate(date);
+
                 productService.saveProduct(product);
                 return new ResponseEntity<Product>(product,HttpStatus.OK);
             }

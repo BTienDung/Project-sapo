@@ -7,6 +7,7 @@ import com.example.demo.service.VariantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -36,6 +37,11 @@ public class VariantServiceImpl implements VariantService {
     @Override
     public Optional<Product> findByProductId(Long id) {
         return variantRepository.findByProductId(id);
+    }
+
+    @Override
+    public List<Variant> findAllByProductId(Long id) {
+        return variantRepository.findAllByProductId(id);
     }
 
 

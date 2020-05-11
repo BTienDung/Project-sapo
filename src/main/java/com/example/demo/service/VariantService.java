@@ -12,5 +12,6 @@ public interface VariantService {
     Optional<Variant> findById(Long id);
     Iterable<Variant> findAllVariant();
     Optional<Product> findByProductId(Long id);
+    List<Variant> findAllByProductId(Long id);
 
 }
