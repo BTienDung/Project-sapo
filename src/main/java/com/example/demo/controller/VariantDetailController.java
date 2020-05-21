@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +20,7 @@ public class VariantDetailController {
     @Autowired
     private VariantDetailService variantDetailService;
     @PostMapping
-    public ResponseEntity<VariantDetail> createOption(@RequestBody VariantDetail variantDetail, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<VariantDetail> createOption(@Valid @RequestBody VariantDetail variantDetail, UriComponentsBuilder uriComponentsBuilder) {
         //dem
         Long countOption = variantDetailService.countAllByVariantId(variantDetail.getVariant().getId());
         //tim tat ca variantDetail theo variant id
@@ -36,12 +38,11 @@ public class VariantDetailController {
                             return new ResponseEntity("Create failed!!! Product is exist.", HttpStatus.BAD_REQUEST);
                         }
                     } catch (Exception e) {
-
-                        e.printStackTrace();
+                        throw new ResponseStatusException(
+                                HttpStatus.NOT_FOUND, "Not Found", e);
                     }
                 }
                 variantDetailService.save(variantDetail);
-                countOption++;
                 return new ResponseEntity<VariantDetail>(variantDetail, HttpStatus.CREATED);
             } else {
                 return new ResponseEntity("Create failed!!! VariantDetail must be less than 3.", HttpStatus.BAD_REQUEST);
@@ -86,7 +87,7 @@ public class VariantDetailController {
     public ResponseEntity<Iterable<VariantDetail>> findAllVariantDetail(){
         Iterable<VariantDetail> variantDetails = variantDetailService.findAllOption();
         if (variantDetails == null){
-            return new ResponseEntity("Variant detail null", HttpStatus.NOT_FOUND);
+            return new ResponseEntity("Variant detail null", HttpStatus.OK);
         }
         return new ResponseEntity<Iterable<VariantDetail>>(variantDetails, HttpStatus.OK);
     }
@@ -99,7 +100,16 @@ public class VariantDetailController {
         }
         return new ResponseEntity<VariantDetail>(variantDetails, HttpStatus.OK);
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteVariantDetailById(@PathVariable("id") Long id){
+        VariantDetail variantDetails = variantDetailService.findByVariantDetailId(id).get();
+        if (variantDetails == null){
+            return new ResponseEntity("Not fount variant detail to delete",HttpStatus.NOT_FOUND);
+        }
+        variantDetailService.delete(id);
+        return new ResponseEntity("Delete variant success", HttpStatus.OK);
 
+    }
 
 }
 

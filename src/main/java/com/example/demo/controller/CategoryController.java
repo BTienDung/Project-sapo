@@ -22,7 +22,7 @@ public class CategoryController {
     public ResponseEntity<List<Category>> findAllCategory(){
         List<Category> listCategory = categoryService.findAllCategory();
         if (listCategory.isEmpty()){
-            return new ResponseEntity<List<Category>>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<List<Category>>(HttpStatus.OK);
         }
         return new ResponseEntity<List<Category>>(listCategory,HttpStatus.OK);
     }

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +23,7 @@ import java.util.*;
 @RestController
 @CrossOrigin
 @RequestMapping("/api/products")
+@PreAuthorize("hasRole('ADMIN')")
 @Validated
 public class ProductController {
     @Autowired
@@ -38,7 +40,7 @@ public class ProductController {
     public ResponseEntity<List<Details>> showAllProduct(){
         List<Object[]> objects = detailsRepository.getAllDetails();
         if (objects == null){
-            return new ResponseEntity<List<Details>>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity("List products null!", HttpStatus.OK);
         }
             List<Details> detailsList = new ArrayList<>();
             for (Object[] o: objects){
@@ -64,7 +66,7 @@ public class ProductController {
     public ResponseEntity<List<Product>> showAllProductOriginal(){
         List<Product> products = productService.findAllProductByStatus();
         if (products == null){
-            return new ResponseEntity<List<Product>>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<List<Product>>(HttpStatus.OK);
         }
 
         return  new ResponseEntity<List<Product>>(products, HttpStatus.OK);
@@ -108,7 +110,7 @@ public class ProductController {
 //    }
 
     @PostMapping()
-    public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product, UriComponentsBuilder uriComponentsBuilder){
+    public ResponseEntity<Product> createProduct(@Valid  @RequestBody Product product, UriComponentsBuilder uriComponentsBuilder){
 //        List<Product> productList = productService.findAllProductByStatus();
 //        if (productList!=null){
 //            for(Product p: productList){
@@ -176,7 +178,7 @@ public class ProductController {
     //them yeu cau neu ma category mà trống thì lưu category cũ
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody Product product, UriComponentsBuilder uriComponentsBuilder){
+    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long id,@Valid @RequestBody Product product, UriComponentsBuilder uriComponentsBuilder){
         List<Product> productList = productService.findAllProductByStatus();
         Optional<Product> productOptional = productService.findById(id);
         Product productNew = productOptional.get();
