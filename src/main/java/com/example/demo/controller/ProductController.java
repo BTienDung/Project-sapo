@@ -23,7 +23,6 @@ import java.util.*;
 @RestController
 @CrossOrigin
 @RequestMapping("/api/products")
-@PreAuthorize("hasRole('ADMIN')")
 @Validated
 public class ProductController {
     @Autowired
